@@ -19,14 +19,6 @@ RustDesk acolhe contribuições de todos. Leia [`docs/CONTRIBUTING.md`](CONTRIBU
 
 [**DOWNLOAD DE BINÁRIOS**](https://github.com/rustdesk/rustdesk/releases)
 
-## Servidores Públicos Grátis
-
-Abaixo estão os servidores que você está utilizando de graça, ele pode mudar com o tempo. Se você não está próximo de algum deles, sua conexão pode ser lenta.
-
-| Localização | Fornecedor    | Especificações     |
-| ----------- | ------------- | ------------------ |
-| Germany | Hetzner | 2 vCPU / 4GB RAM |
-
 ## Dependências
 
 Versões de desktop utilizam [sciter](https://sciter.com/) para a GUI, por favor baixe a biblioteca dinâmica sciter por conta própria.
@@ -144,6 +136,10 @@ Por favor verifique que está executando estes comandos da raiz do repositório 
 - **[src/client.rs](https://github.com/rustdesk/rustdesk/tree/master/src/client.rs)**: iniciar uma conexão "peer to peer"
 - **[src/rendezvous_mediator.rs](https://github.com/rustdesk/rustdesk/tree/master/src/rendezvous_mediator.rs)**: Comunicação com [rustdesk-server](https://github.com/rustdesk/rustdesk-server), aguardar pela conexão remota direta (TCP hole punching) ou conexão indireta (relayed)
 - **[src/platform](https://github.com/rustdesk/rustdesk/tree/master/src/platform)**: código específico a cada plataforma
+
+> [!Cuidadob]
+> **Aviso de uso indevido:** <br>
+> Os desenvolvedores do RustDesk não aprovam nem apoiam qualquer uso antiético ou ilegal deste software. O uso indevido, como acesso não autorizado, controle ou invasão de privacidade, é estritamente contra nossas diretrizes. Os autores não são responsáveis por qualquer uso indevido da aplicação.
 
 ## Screenshots
 
