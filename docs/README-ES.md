@@ -25,15 +25,6 @@ RustDesk agradece la contribución de todo el mundo. Lee [`docs/CONTRIBUTING.md`
     alt="Get it on F-Droid"
     height="80">](https://f-droid.org/en/packages/com.carriez.flutter_hbb)
 
-## Servidores gratis de uso público
-
-A continuación se muestran los servidores gratuitos, pueden cambiar a medida que pasa el tiempo. Si no estás cerca de uno de ellos, tu conexión puede ser lenta.
-
-| Ubicación | Compañía | Especificación |
-| --------- | ------------- | ------------------ |
-| Germany | Hetzner | 2 vCPU / 4GB RAM |
-| Ukraine (Kyiv) | [dc.volia](https://dc.volia.com) | 2 vCPU / 4GB RAM |
-
 ## Dependencias
 
 La versión Desktop usa [Sciter](https://sciter.com/) o Flutter para el GUI, este tutorial es solo para Sciter.
@@ -155,6 +146,10 @@ Por favor, asegurate de que estás ejecutando estos comandos desde la raíz del 
 - **[src/platform](https://github.com/rustdesk/rustdesk/tree/master/src/platform)**: código específico de cada plataforma
 - **[flutter](https://github.com/rustdesk/rustdesk/tree/master/flutter)**: Flutter, código para moviles
 - **[flutter/web/js](https://github.com/rustdesk/rustdesk/tree/master/flutter/web/js)**: Javascript para el cliente web Flutter
+
+> [!Precaución]
+> **Descargo de responsabilidad por uso indebido:** <br>
+> Los desarrolladores de RustDesk no aprueban ni apoyan ningún uso no ético o ilegal de este software. El uso indebido, como el acceso no autorizado, el control o la invasión de la privacidad, está estrictamente en contra de nuestras directrices. Los autores no son responsables de ningún uso indebido de la aplicación.
 
 ## Capturas de pantalla
 
