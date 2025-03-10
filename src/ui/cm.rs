@@ -19,6 +19,7 @@ impl InvokeUiCM for SciterHandler {
             &make_args!(
                 client.id,
                 client.is_file_transfer,
+                client.is_view_camera,
                 client.port_forward.clone(),
                 client.peer_id.clone(),
                 client.name.clone(),
@@ -28,7 +29,8 @@ impl InvokeUiCM for SciterHandler {
                 client.audio,
                 client.file,
                 client.restart,
-                client.recording
+                client.recording,
+                client.block_input
             ),
         );
     }
@@ -63,7 +65,7 @@ impl InvokeUiCM for SciterHandler {
         );
     }
 
-    fn file_transfer_log(&self, _log: String) {}
+    fn file_transfer_log(&self, _action: &str, _log: &str) {}
 }
 
 impl SciterHandler {

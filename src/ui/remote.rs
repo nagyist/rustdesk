@@ -66,6 +66,39 @@ impl SciterHandler {
         }
         displays_value
     }
+
+    fn make_platform_additions(data: &str) -> Option<Value> {
+        if let Ok(v2) = serde_json::from_str::<HashMap<String, serde_json::Value>>(data) {
+            let mut value = Value::map();
+            for (k, v) in v2 {
+                match v {
+                    serde_json::Value::String(s) => {
+                        value.set_item(k, s);
+                    }
+                    serde_json::Value::Number(n) => {
+                        if let Some(n) = n.as_i64() {
+                            value.set_item(k, n as i32);
+                        } else if let Some(n) = n.as_f64() {
+                            value.set_item(k, n);
+                        }
+                    }
+                    serde_json::Value::Bool(b) => {
+                        value.set_item(k, b);
+                    }
+                    _ => {
+                        // ignore for now
+                    }
+                }
+            }
+            if value.len() > 0 {
+                return Some(value);
+            } else {
+                None
+            }
+        } else {
+            None
+        }
+    }
 }
 
 impl InvokeUiSession for SciterHandler {
@@ -131,7 +164,8 @@ impl InvokeUiSession for SciterHandler {
                 status.target_bitrate.map_or(Value::null(), |it| it.into()),
                 status
                     .codec_format
-                    .map_or(Value::null(), |it| it.to_string().into())
+                    .map_or(Value::null(), |it| it.to_string().into()),
+                status.chroma.map_or(Value::null(), |it| it.into())
             ),
         );
     }
@@ -244,6 +278,9 @@ impl InvokeUiSession for SciterHandler {
         pi_sciter.set_item("displays", Self::make_displays_array(&pi.displays));
         pi_sciter.set_item("current_display", pi.current_display);
         pi_sciter.set_item("version", pi.version.clone());
+        if let Some(v) = Self::make_platform_additions(&pi.platform_additions) {
+            pi_sciter.set_item("platform_additions", v);
+        }
         self.call("updatePi", &make_args!(pi_sciter));
     }
 
@@ -258,14 +295,34 @@ impl InvokeUiSession for SciterHandler {
         // Ignore for sciter version.
     }
 
+    fn set_current_display(&self, _disp_idx: i32) {
+        self.call("setCurrentDisplay", &make_args!(_disp_idx));
+    }
+
+    fn set_multiple_windows_session(&self, sessions: Vec<WindowsSession>) {
+        let mut v = Value::array(0);
+        let mut sessions = sessions;
+        for s in sessions.drain(..) {
+            let mut obj = Value::map();
+            obj.set_item("sid", s.sid.to_string());
+            obj.set_item("name", s.name);
+            v.push(obj);
+        }
+        self.call("setMultipleWindowsSession", &make_args!(v));
+    }
+
     fn on_connected(&self, conn_type: ConnType) {
         match conn_type {
             ConnType::RDP => {}
             ConnType::PORT_FORWARD => {}
             ConnType::FILE_TRANSFER => {}
+            ConnType::VIEW_CAMERA => {}
             ConnType::DEFAULT_CONN => {
                 crate::keyboard::client::start_grab_loop();
             }
+            // Left empty code from compilation.
+            // Please replace the code in the PR.
+            ConnType::VIEW_CAMERA => {}
         }
     }
 
@@ -318,6 +375,10 @@ impl InvokeUiSession for SciterHandler {
     }
 
     fn next_rgba(&self, _display: usize) {}
+
+    fn update_record_status(&self, start: bool) {
+        self.call("updateRecordStatus", &make_args!(start));
+    }
 }
 
 pub struct SciterSession(Session<SciterHandler>);
@@ -416,6 +477,8 @@ impl sciter::EventHandler for SciterSession {
         fn is_port_forward();
         fn is_rdp();
         fn login(String, String, String, bool);
+        fn send2fa(String, bool);
+        fn get_enable_trusted_devices();
         fn new_rdp();
         fn send_mouse(i32, i32, i32, bool, bool, bool, bool);
         fn enter(String);
@@ -459,8 +522,7 @@ impl sciter::EventHandler for SciterSession {
         fn save_image_quality(String);
         fn save_custom_image_quality(i32);
         fn refresh_video(i32);
-        fn record_screen(bool, i32, i32, i32);
-        fn record_status(bool);
+        fn record_screen(bool);
         fn get_toggle_option(String);
         fn is_privacy_mode_supported();
         fn toggle_option(String);
@@ -468,6 +530,7 @@ impl sciter::EventHandler for SciterSession {
         fn peer_platform();
         fn set_write_override(i32, i32, bool, bool, bool);
         fn get_keyboard_mode();
+        fn is_keyboard_mode_supported(String);
         fn save_keyboard_mode(String);
         fn alternative_codecs();
         fn change_prefer_codec();
@@ -475,6 +538,9 @@ impl sciter::EventHandler for SciterSession {
         fn request_voice_call();
         fn close_voice_call();
         fn version_cmp(String, String);
+        fn set_selected_windows_session_id(String);
+        fn is_recording();
+        fn has_file_clipboard();
     }
 }
 
@@ -482,7 +548,6 @@ impl SciterSession {
     pub fn new(cmd: String, id: String, password: String, args: Vec<String>) -> Self {
         let force_relay = args.contains(&"--relay".to_string());
         let session: Session<SciterHandler> = Session {
-            id: id.clone(),
             password: password.clone(),
             args,
             server_keyboard_enabled: Arc::new(RwLock::new(true)),
@@ -493,6 +558,8 @@ impl SciterSession {
 
         let conn_type = if cmd.eq("--file-transfer") {
             ConnType::FILE_TRANSFER
+        } else if cmd.eq("--view-camera") {
+            ConnType::VIEW_CAMERA
         } else if cmd.eq("--port-forward") {
             ConnType::PORT_FORWARD
         } else if cmd.eq("--rdp") {
@@ -505,7 +572,7 @@ impl SciterSession {
             .lc
             .write()
             .unwrap()
-            .initialize(id, conn_type, None, force_relay);
+            .initialize(id, conn_type, None, force_relay, None, None, None);
 
         Self(session)
     }
@@ -577,6 +644,14 @@ impl SciterSession {
         }
         self.save_config(config);
         log::info!("size saved");
+    }
+
+    fn set_selected_windows_session_id(&mut self, u_sid: String) {
+        self.send_selected_session_id(u_sid);
+    }
+
+    fn has_file_clipboard(&self) -> bool {
+        cfg!(any(target_os = "windows", feature = "unix-file-copy-paste"))
     }
 
     fn get_port_forwards(&mut self) -> Value {
