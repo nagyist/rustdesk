@@ -235,13 +235,14 @@ class ChatModel with ChangeNotifier {
     }
   }
 
-  _isChatOverlayHide() => ((!isDesktop && chatIconOverlayEntry == null) ||
-      chatWindowOverlayEntry == null);
+  _isChatOverlayHide() =>
+      ((!(isDesktop || isWebDesktop) && chatIconOverlayEntry == null) ||
+          chatWindowOverlayEntry == null);
 
   toggleChatOverlay({Offset? chatInitPos}) {
     if (_isChatOverlayHide()) {
       gFFI.invokeMethod("enable_soft_keyboard", true);
-      if (!isDesktop) {
+      if (!(isDesktop || isWebDesktop)) {
         showChatIconOverlay();
       }
       showChatWindowOverlay(chatInitPos: chatInitPos);
@@ -285,6 +286,10 @@ class ChatModel with ChangeNotifier {
     await toggleCMSidePage();
   }
 
+  toggleCMFilePage() async {
+    await toggleCMSidePage();
+  }
+
   var _togglingCMSidePage = false; // protect order for await
   toggleCMSidePage() async {
     if (_togglingCMSidePage) return false;
@@ -296,6 +301,13 @@ class ChatModel with ChangeNotifier {
       await windowManager.setSizeAlignment(
           kConnectionManagerWindowSizeClosedChat, Alignment.topRight);
     } else {
+      final currentSelectedTab =
+          gFFI.serverModel.tabController.state.value.selectedTabInfo;
+      final client = parent.target?.serverModel.clients.firstWhereOrNull(
+          (client) => client.id.toString() == currentSelectedTab.key);
+      if (client != null) {
+        client.unreadChatMessageCount.value = 0;
+      }
       requestChatInputFocus();
       await windowManager.show();
       await windowManager.setSizeAlignment(
@@ -516,10 +528,18 @@ class ChatModel with ChangeNotifier {
 
   void onVoiceCallStarted() {
     _voiceCallStatus.value = VoiceCallStatus.connected;
+    if (isAndroid) {
+      parent.target?.invokeMethod("on_voice_call_started");
+    }
   }
 
   void onVoiceCallClosed(String reason) {
     _voiceCallStatus.value = VoiceCallStatus.notStarted;
+    if (isAndroid) {
+      // We can always invoke "on_voice_call_closed"
+      // no matter if the `_voiceCallStatus` was `VoiceCallStatus.notStarted` or not.
+      parent.target?.invokeMethod("on_voice_call_closed");
+    }
   }
 
   void onVoiceCallIncoming() {

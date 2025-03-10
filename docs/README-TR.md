@@ -30,23 +30,6 @@ RustDesk, herkesten katkıyı kabul eder. Başlamak için [CONTRIBUTING.md](docs
     alt="F-Droid'de Alın"
     height="80">](https://f-droid.org/en/packages/com.carriez.flutter_hbb)
 
-## Ücretsiz Genel Sunucular
-
-Aşağıda ücretsiz olarak kullandığınız sunucular listelenmiştir, zaman içinde değişebilirler. Eğer bunlardan birine yakın değilseniz, ağınız yavaş olabilir.
-| Konum | Sağlayıcı | Özellikler |
-| --------- | ------------- | ------------------ |
-| Almanya | [Hetzner](https://www.hetzner.com) | 2 vCPU / 4 GB RAM |
-| Almanya | [Codext](https://codext.de) | 4 vCPU / 8 GB RAM |
-| Ukrayna (Kiev) | [dc.volia](https://dc.volia.com) | 2 vCPU / 4 GB RAM |
-
-## Geliştirici Konteyneri
-
-[![Open in Dev Containers](https://img.shields.io/static/v1?label=Dev%20Container&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/rustdesk/rustdesk)
-
-Eğer zaten VS Code ve Docker kurulu ise yukarıdaki rozete tıklayarak başlayabilirsiniz. Tıklamak, VS Code'un gerektiğinde Dev Konteyner eklentisini otomatik olarak yüklemesine, kaynak kodunu bir konteyner hacmine klonlamasına ve kullanım için bir geliştirici konteyneri başlatmasına neden olur.
-
-Daha fazla bilgi için [DEVCONTAINER.md](docs/DEVCONTAINER-TR.md) belgesine bakabilirsiniz.
-
 ## Bağımlılıklar
 
 Masaüstü sürümleri GUI için
@@ -182,6 +165,10 @@ Lütfen bu komutları RustDesk deposunun kökünden çalıştırdığınızdan e
 - **[src/platform](https://github.com/rustdesk/rustdesk/tree/master/src/platform)**: platforma özgü kod
 - **[flutter](https://github.com/rustdesk/rustdesk/tree/master/flutter)**: mobil için Flutter kodu
 - **[flutter/web/js](https://github.com/rustdesk/rustdesk/tree/master/flutter/web/js)**: Flutter web istemcisi için JavaScript
+
+> [!Dikkat]
+> **Yanlış Kullanım Uyarısı:** <br>
+> RustDesk geliştiricileri, bu yazılımın etik olmayan veya yasa dışı kullanımını onaylamaz veya desteklemez. Yetkisiz erişim, kontrol veya gizlilik ihlali gibi kötüye kullanımlar kesinlikle yönergelerimize aykırıdır. Yazarlar, uygulamanın herhangi bir yanlış kullanımından sorumlu değildir.
 
 ## Ekran Görüntüleri
 
